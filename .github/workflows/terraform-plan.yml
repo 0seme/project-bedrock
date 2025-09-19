@@ -1,0 +1,13 @@
+# Terraform plan stub for feature branches - edit later
+name: Terraform Plan (feature)
+on:
+  push:
+    branches:
+      - 'feature/**'
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: placeholder
+        run: echo "Add Terraform plan steps here"
