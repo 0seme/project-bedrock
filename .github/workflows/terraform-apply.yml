@@ -1,0 +1,13 @@
+# Terraform apply stub for main - edit later
+name: Terraform Apply (main)
+on:
+  push:
+    branches:
+      - main
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: placeholder
+        run: echo "Add Terraform apply steps here"
