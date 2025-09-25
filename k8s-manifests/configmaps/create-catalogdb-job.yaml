@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-catalogdb
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - name: mysql-client
+          image: mysql:8.0
+          command: ["mysql"]
+          args:
+            - "-h"
+            - "catalog-db"
+            - "-u"
+            - "mydbuser"
+            - "-p***REMOVED***"
+            - "-e"
+            - "CREATE DATABASE IF NOT EXISTS catalogdb; SHOW DATABASES;"
+      restartPolicy: Never
+  backoffLimit: 3
