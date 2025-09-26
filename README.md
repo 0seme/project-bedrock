@@ -2,7 +2,7 @@
 
 > **Mission**: Deploy InnovateMart's microservices application to a production-grade Kubernetes environment on AWS with full automation, security, and scalability.
 
-[![Build Status](https://github.com/0seme/project-bedrock/workflows/Deploy/badge.svg)](https://github.com/your-username/project-bedrock/actions)
+[![Build Status](https://github.com/0seme/project-bedrock/workflows/Deploy/badge.svg)](https://github.com/0seme/project-bedrock/actions)
 [![Infrastructure](https://img.shields.io/badge/Infrastructure-Terraform-623CE4)](https://terraform.io)
 [![Platform](https://img.shields.io/badge/Platform-AWS_EKS-FF9900)](https://aws.amazon.com/eks/)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF)](https://github.com/features/actions)
@@ -18,6 +18,7 @@
 - [CI/CD Pipeline](#-cicd-pipeline)
 - [Access Instructions](#-access-instructions)
 - [Repository Structure](#-repository-structure)
+- [Verification Commands](#-verification-commands)
 - [Troubleshooting](#-troubleshooting)
 - [Security Considerations](#-security-considerations)
 
@@ -407,6 +408,11 @@ jobs:
           aws-region: us-east-1
 ```
 
+**Pipeline Execution Evidence:**
+
+![GitHub Actions Workflow Success](./Images/Github-actions.png)
+_Screenshot showing successful Terraform plan and apply execution_
+
 **Security Implementation:**
 
 - ✅ AWS credentials stored in GitHub Secrets (never hardcoded)
@@ -416,20 +422,29 @@ jobs:
 
 ## 👥 Developer Access Configuration
 
-### Read-Only IAM User Setup
+### IAM User Setup
 
 **IAM User**: `BedrockDeveloper`
-**Capabilities:**
 
-- View pod status and logs
-- Describe Kubernetes resources
-- Access cluster information
-- **Cannot**: Modify, delete, or create resources
+**AWS Permissions:**
 
-**Kubeconfig Setup:**
+- `ReadOnlyAccess` (AWS managed policy)
+- `AmazonEKSWorkerNodePolicy`, `AmazonEKS_CNI_Policy`, `AmazonEC2ContainerRegistryReadOnly`
+- Custom `BedrockDeveloperReadOnlyPolicy1` for additional resource access
+- Full read access to VPC, EKS, RDS, DynamoDB, and ElastiCache resources
+
+**EKS Cluster Access:**
+The user is mapped in the aws-auth ConfigMap with cluster access permissions.
+
+**Setup Instructions:**
 
 ```bash
-# Update kubeconfig for developer access
+# Configure AWS CLI with provided credentials
+aws configure set aws_access_key_id [PROVIDED_ACCESS_KEY]
+aws configure set aws_secret_access_key [PROVIDED_SECRET_KEY]
+aws configure set region us-east-1
+
+# Update kubeconfig for cluster access
 aws eks update-kubeconfig --region us-east-1 --name project-bedrock-eks
 
 # Verify access
@@ -438,21 +453,11 @@ kubectl describe pod <pod-name>
 kubectl logs <pod-name>
 ```
 
-**RBAC Configuration:**
+**Console Access:**
 
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: developer-read-only
-rules:
-  - apiGroups: [""]
-    resources: ["pods", "services", "endpoints"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["apps"]
-    resources: ["deployments", "replicasets"]
-    verbs: ["get", "list", "watch"]
-```
+- Username: `BedrockDeveloper`
+- Password: Provided in submission document
+- Console URL: https://[ACCOUNT-ID].signin.aws.amazon.com/console
 
 ## 📁 Repository Structure
 
@@ -504,6 +509,26 @@ project-bedrock/
 
 - **RDS instances**: Access through application services only (no direct access)
 - **DynamoDB**: Accessible through AWS CLI/Console with proper permissions
+
+## 🔍 Verification Commands
+
+To verify the deployment is working correctly:
+
+```bash
+# Check AWS resources
+aws eks describe-cluster --name project-bedrock-eks --region us-east-1
+aws ec2 describe-vpcs
+aws rds describe-db-instances
+aws dynamodb list-tables
+
+# Check Kubernetes resources
+kubectl get pods --all-namespaces
+kubectl get services --all-namespaces
+kubectl get ingress --all-namespaces
+
+# Test application connectivity
+curl -I http://k8s-ui-ui-f30463ea56-3afde7e4087962fd.elb.us-east-1.amazonaws.com
+```
 
 ## 🛠️ Troubleshooting
 
