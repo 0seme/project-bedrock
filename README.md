@@ -202,12 +202,12 @@ resource "tls_private_key" "alb_key" {
 
 resource "tls_self_signed_cert" "alb_cert" {
   private_key_pem = tls_private_key.alb_key.private_key_pem
-
+  
   subject {
     common_name  = "*.elb.amazonaws.com"
     organization = "Project Bedrock"
   }
-
+  
   validity_period_hours = 8760
 }
 
@@ -356,6 +356,7 @@ The AWS Load Balancer Controller is deployed via the EKS module and manages ALB 
 
 1. **HTTP Listener (Port 80)**:
    - Redirects all traffic to HTTPS (301 redirect)
+   
 2. **HTTPS Listener (Port 443)**:
    - Uses ACM certificate: `arn:aws:acm:us-east-1:562169195760:certificate/ed110be6-b250-409c-8b82-a5c0c4bae3b1`
    - SSL Policy: `ELBSecurityPolicy-2016-08`
@@ -529,6 +530,11 @@ jobs:
           aws-region: us-east-1
 ```
 
+**Pipeline Execution Evidence:**
+
+![GitHub Actions Workflow Success](./Images/Github-actions.png)
+_Screenshot showing successful Terraform plan and apply execution_
+
 **Security Implementation:**
 
 - ✅ AWS credentials stored in GitHub Secrets (never hardcoded)
@@ -589,7 +595,6 @@ project-bedrock/
 ### Application Access
 
 **HTTPS Endpoint (Primary):**
-
 ```
 https://k8s-default-catalogi-5953637d03-91833341.us-east-1.elb.amazonaws.com
 ```
@@ -662,7 +667,7 @@ curl -k https://k8s-default-catalogi-5953637d03-91833341.us-east-1.elb.amazonaws
 ```
 Symptom: "Your connection is not private" or "NET::ERR_CERT_AUTHORITY_INVALID"
 Cause: Self-signed SSL certificate not trusted by browser
-Solution: This is expected. Click "Advanced" → "Proceed to site" (Chrome) or
+Solution: This is expected. Click "Advanced" → "Proceed to site" (Chrome) or 
           "Advanced" → "Accept the Risk and Continue" (Firefox)
 ```
 
